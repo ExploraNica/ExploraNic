@@ -705,6 +705,300 @@ footer { margin-top: 36px; padding-block: 20px 96px; border-top: 1px solid var(-
     </div>
   </section>
 
+  <!-- ============================================================
+  ExploraNic · Valoración con estrellas + caja de comentarios
+  Pega TODO este bloque en tu index.html, justo ANTES de la
+  sección <h2>Síguenos</h2> (o donde quieras que aparezca).
+  Antes de usarlo, reemplaza los datos de firebaseConfig (abajo).
+============================================================ -->
+
+<section id="opinar" class="opinar">
+  <h2>Tu opinión cuenta</h2>
+  <p class="opinar-intro">Califica la página y cuéntanos qué departamento o ciudad de Nicaragua te gustaría ver.</p>
+
+  <!-- Promedio general -->
+  <div class="opinar-resumen" aria-live="polite">
+    <span class="opinar-promedio" id="promedio">–</span>
+    <span class="opinar-estrellas-fijas" id="promedio-estrellas" aria-hidden="true">★★★★★</span>
+    <span class="opinar-total" id="total-votos">Aún no hay valoraciones</span>
+  </div>
+
+  <!-- Valoración -->
+  <div class="opinar-bloque">
+    <h3>¿Cuántas estrellas le das?</h3>
+    <div class="opinar-estrellas" id="estrellas" role="radiogroup" aria-label="Valoración de 1 a 5 estrellas">
+      <button type="button" role="radio" aria-checked="false" data-valor="1" aria-label="1 estrella">★</button>
+      <button type="button" role="radio" aria-checked="false" data-valor="2" aria-label="2 estrellas">★</button>
+      <button type="button" role="radio" aria-checked="false" data-valor="3" aria-label="3 estrellas">★</button>
+      <button type="button" role="radio" aria-checked="false" data-valor="4" aria-label="4 estrellas">★</button>
+      <button type="button" role="radio" aria-checked="false" data-valor="5" aria-label="5 estrellas">★</button>
+    </div>
+    <button type="button" class="opinar-boton" id="enviar-estrellas" disabled>Enviar valoración</button>
+    <p class="opinar-msg" id="msg-estrellas" role="status"></p>
+  </div>
+
+  <!-- Comentarios -->
+  <div class="opinar-bloque">
+    <h3>Déjanos un comentario</h3>
+    <form id="form-comentario" novalidate>
+      <label for="c-nombre">Nombre (opcional)</label>
+      <input id="c-nombre" type="text" maxlength="40" placeholder="Tu nombre" autocomplete="given-name">
+
+      <label for="c-mensaje">Tu comentario</label>
+      <textarea id="c-mensaje" rows="4" maxlength="500" required
+        placeholder="Ej: Me gustaría que agreguen Granada, Ometepe o León…"></textarea>
+      <small class="opinar-contador"><span id="c-contador">0</span>/500</small>
+
+      <button type="submit" class="opinar-boton" id="enviar-comentario">Enviar comentario</button>
+      <p class="opinar-msg" id="msg-comentario" role="status"></p>
+    </form>
+
+    <h3 class="opinar-sub">Comentarios recientes</h3>
+    <ul class="opinar-lista" id="lista-comentarios">
+      <li class="opinar-vacio">Cargando comentarios…</li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Usa los colores de tu página si ya tienes variables; si no, toma estos */
+  .opinar {
+    --op-color: var(--color-primario, #0a7c8c);
+    --op-estrella: #f5b301;
+    max-width: 720px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+    font-family: inherit;
+  }
+  .opinar h2 { margin-bottom: .25rem; }
+  .opinar-intro { margin-top: 0; opacity: .8; }
+  .opinar-bloque {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(128,128,128,.3);
+    border-radius: 14px;
+  }
+  .opinar-bloque h3 { margin: 0 0 .75rem; font-size: 1.1rem; }
+  .opinar-sub { margin-top: 1.75rem !important; }
+
+  .opinar-resumen { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+  .opinar-promedio { font-size: 2rem; font-weight: 700; }
+  .opinar-estrellas-fijas {
+    font-size: 1.4rem; letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--op-estrella) var(--pct, 0%), rgba(128,128,128,.35) var(--pct, 0%));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .opinar-total { opacity: .75; font-size: .95rem; }
+
+  .opinar-estrellas { display: flex; gap: .25rem; margin-bottom: .9rem; }
+  .opinar-estrellas button {
+    background: none; border: none; cursor: pointer; padding: .1rem;
+    font-size: 2.4rem; line-height: 1; color: rgba(128,128,128,.4);
+    transition: transform .1s, color .15s;
+  }
+  .opinar-estrellas button.activa { color: var(--op-estrella); }
+  .opinar-estrellas button:hover { transform: scale(1.15); }
+  .opinar-estrellas button:focus-visible { outline: 3px solid var(--op-color); outline-offset: 2px; border-radius: 6px; }
+
+  .opinar label { display: block; margin: .75rem 0 .25rem; font-weight: 600; font-size: .95rem; }
+  .opinar input[type="text"], .opinar textarea {
+    width: 100%; box-sizing: border-box; padding: .65rem .8rem; font: inherit;
+    border: 1px solid rgba(128,128,128,.5); border-radius: 10px; background: transparent; color: inherit;
+  }
+  .opinar textarea { resize: vertical; }
+  .opinar-contador { display: block; text-align: right; opacity: .6; margin-top: .2rem; }
+
+  .opinar-boton {
+    margin-top: .75rem; padding: .7rem 1.4rem; font: inherit; font-weight: 600;
+    background: var(--op-color); color: #fff; border: none; border-radius: 999px; cursor: pointer;
+  }
+  .opinar-boton:disabled { opacity: .45; cursor: not-allowed; }
+  .opinar-msg { min-height: 1.2em; margin: .6rem 0 0; font-size: .95rem; }
+  .opinar-msg.ok { color: #1a8a3c; }
+  .opinar-msg.error { color: #c0392b; }
+
+  .opinar-lista { list-style: none; padding: 0; margin: 0; display: grid; gap: .75rem; }
+  .opinar-lista li {
+    padding: .8rem 1rem; border-radius: 10px; background: rgba(128,128,128,.1);
+  }
+  .opinar-lista .c-autor { font-weight: 700; }
+  .opinar-lista .c-fecha { opacity: .6; font-size: .85rem; margin-left: .4rem; }
+  .opinar-lista .c-texto { margin: .3rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .opinar-vacio { opacity: .7; }
+</style>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, serverTimestamp,
+    query, orderBy, limit, onSnapshot,
+    getAggregateFromServer, average, count
+  } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+  // 👇 REEMPLAZA con los datos de TU proyecto de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJXogiUJTz3Jp9VaG6HTQvLqIJLaHv_3w",
+    authDomain: "exploranic-63a93.firebaseapp.com",
+    databaseURL: "https://exploranic-63a93-default-rtdb.firebaseio.com",
+    projectId: "exploranic-63a93",
+    storageBucket: "exploranic-63a93.firebasestorage.app",
+    messagingSenderId: "1098094133887",
+    appId: "1:1098094133887:web:4a1b96d314dea89072b54a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------- PROMEDIO ---------- */
+  async function cargarPromedio() {
+    try {
+      const res = await getAggregateFromServer(collection(db, "valoraciones"), {
+        promedio: average("estrellas"),
+        total: count()
+      });
+      const { promedio, total } = res.data();
+      if (!total) return;
+      $("promedio").textContent = promedio.toFixed(1);
+      $("promedio-estrellas").style.setProperty("--pct", (promedio / 5 * 100) + "%");
+      $("total-votos").textContent = total + (total === 1 ? " valoración" : " valoraciones");
+    } catch (e) { console.error("Promedio:", e); }
+  }
+  cargarPromedio();
+
+  /* ---------- ESTRELLAS ---------- */
+  const botones = [...document.querySelectorAll("#estrellas button")];
+  const btnEnviarEstrellas = $("enviar-estrellas");
+  let seleccion = 0;
+
+  function pintar(n) {
+    botones.forEach((b) => {
+      const activa = Number(b.dataset.valor) <= n;
+      b.classList.toggle("activa", activa);
+      b.setAttribute("aria-checked", Number(b.dataset.valor) === seleccion ? "true" : "false");
+    });
+  }
+  botones.forEach((b) => {
+    b.addEventListener("click", () => { seleccion = Number(b.dataset.valor); pintar(seleccion); btnEnviarEstrellas.disabled = false; });
+    b.addEventListener("mouseenter", () => pintar(Number(b.dataset.valor)));
+    b.addEventListener("mouseleave", () => pintar(seleccion));
+  });
+
+  // Evita que la misma persona vote muchas veces desde el mismo navegador
+  // (es una medida básica, no impide trampas avanzadas)
+  let yaVoto = false;
+  try { yaVoto = localStorage.getItem("exploranic_voto") !== null; } catch (_) {}
+  if (yaVoto) {
+    btnEnviarEstrellas.disabled = true;
+    $("msg-estrellas").textContent = "¡Gracias! Ya enviaste tu valoración.";
+    $("msg-estrellas").className = "opinar-msg ok";
+    try { seleccion = Number(localStorage.getItem("exploranic_voto")) || 0; pintar(seleccion); } catch (_) {}
+  }
+
+  btnEnviarEstrellas.addEventListener("click", async () => {
+    if (!seleccion || yaVoto) return;
+    btnEnviarEstrellas.disabled = true;
+    const msg = $("msg-estrellas");
+    try {
+      await addDoc(collection(db, "valoraciones"), { estrellas: seleccion, fecha: serverTimestamp() });
+      try { localStorage.setItem("exploranic_voto", String(seleccion)); } catch (_) {}
+      yaVoto = true;
+      msg.textContent = "¡Gracias por tu valoración!";
+      msg.className = "opinar-msg ok";
+      cargarPromedio();
+    } catch (e) {
+      console.error(e);
+      msg.textContent = "No se pudo enviar. Intenta de nuevo más tarde.";
+      msg.className = "opinar-msg error";
+      btnEnviarEstrellas.disabled = false;
+    }
+  });
+
+  /* ---------- COMENTARIOS ---------- */
+  const textarea = $("c-mensaje");
+  textarea.addEventListener("input", () => { $("c-contador").textContent = textarea.value.length; });
+
+  $("form-comentario").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const msg = $("msg-comentario");
+    const mensaje = textarea.value.trim();
+    const nombre = $("c-nombre").value.trim() || "Anónimo";
+
+    if (mensaje.length < 3) {
+      msg.textContent = "Escribe al menos unas palabras.";
+      msg.className = "opinar-msg error";
+      return;
+    }
+    // Pausa de 30 s entre comentarios para frenar el spam básico
+    try {
+      const ultimo = Number(localStorage.getItem("exploranic_ultimo_comentario") || 0);
+      if (Date.now() - ultimo < 30000) {
+        msg.textContent = "Espera unos segundos antes de enviar otro comentario.";
+        msg.className = "opinar-msg error";
+        return;
+      }
+    } catch (_) {}
+
+    const btn = $("enviar-comentario");
+    btn.disabled = true;
+    try {
+      await addDoc(collection(db, "comentarios"), { nombre, mensaje, fecha: serverTimestamp() });
+      try { localStorage.setItem("exploranic_ultimo_comentario", String(Date.now())); } catch (_) {}
+      ev.target.reset();
+      $("c-contador").textContent = "0";
+      msg.textContent = "¡Gracias! Tu comentario fue enviado.";
+      msg.className = "opinar-msg ok";
+    } catch (e) {
+      console.error(e);
+      msg.textContent = "No se pudo enviar. Intenta de nuevo más tarde.";
+      msg.className = "opinar-msg error";
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // Lista en vivo de los últimos 20 comentarios
+  const lista = $("lista-comentarios");
+  onSnapshot(
+    query(collection(db, "comentarios"), orderBy("fecha", "desc"), limit(20)),
+    (snap) => {
+      lista.innerHTML = "";
+      if (snap.empty) {
+        const li = document.createElement("li");
+        li.className = "opinar-vacio";
+        li.textContent = "Sé la primera persona en comentar.";
+        lista.appendChild(li);
+        return;
+      }
+      snap.forEach((doc) => {
+        const d = doc.data();
+        const li = document.createElement("li");
+        const autor = document.createElement("span");
+        autor.className = "c-autor";
+        autor.textContent = d.nombre || "Anónimo";
+        const fecha = document.createElement("span");
+        fecha.className = "c-fecha";
+        fecha.textContent = d.fecha ? d.fecha.toDate().toLocaleDateString("es-NI") : "";
+        const texto = document.createElement("p");
+        texto.className = "c-texto";
+        texto.textContent = d.mensaje;   // textContent: evita inyección de HTML
+        li.append(autor, fecha, texto);
+        lista.appendChild(li);
+      });
+    },
+    (e) => {
+      console.error(e);
+      lista.innerHTML = "";
+      const li = document.createElement("li");
+      li.className = "opinar-vacio";
+      li.textContent = "No se pudieron cargar los comentarios.";
+      lista.appendChild(li);
+    }
+  );
+</script>
+
+
+
   <section class="sec" id="redes">
     <div class="sec-head"><h2>Síguenos</h2></div>
     <p class="hint">Videos y fotos de cada departamento en nuestras redes.</p>
